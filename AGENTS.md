@@ -1,35 +1,130 @@
-# figma-make-app
+# MediFlow UX Prototype
 
-React + Vite + Tailwind CSS project running inside Figma Make.
+React + Vite + TypeScript + Tailwind CSS prototype exported from Figma Make.
 
-## Development Server
+This repository is the UX reference prototype for MediFlow. It is NOT the
+production frontend and must not be treated as the source architecture for the
+real MediFlow application.
 
-A Vite development server is **already running** on `$PORT` (default 8443). You don't need to start it manually.
+## Purpose
 
-- Preview URL: The user can access the running app through the preview panel
-- Hot reload: Changes to source files are reflected immediately
+Use this project to:
+
+- preserve the approved MediFlow UX;
+- refine and validate mockups and interactions;
+- verify desktop, tablet and mobile behavior;
+- serve as the visual and interaction reference for implementation in the real
+  MediFlow frontend.
+
+Do not introduce production architecture, Backend integrations or unrelated
+features unless explicitly requested.
+
+## Development
+
+Toolchain:
+
+- Node.js 22
+- pnpm 10.34.3
+
+Install:
+
+pnpm install --frozen-lockfile
+
+Development server:
+
+pnpm dev
+
+The current Vite configuration uses port 8443 by default:
+
+http://localhost:8443/
+
+Build:
+
+pnpm build
+
+TypeScript validation:
+
+pnpm exec tsc --noEmit
+
+Formatting:
+
+pnpm format
 
 ## Project Structure
 
-This is the canonical project structure. Start with task-relevant files below. Only follow imports or inspect other files when required, when a documented path is missing, or when the repository contradicts this guide.
+Start with task-relevant files and follow imports only when necessary.
 
-- `src/main.tsx` - React entrypoint; imports `src/index.css` and mounts `src/App.tsx` into the `#root` element
-- `src/App.tsx` - Primary application component and the usual starting point for UI work
-- `src/index.css` - Global CSS entrypoint and Tailwind CSS v4 import
-- `index.html` - Vite HTML shell containing the `#root` element and loading `src/main.tsx`
-- `package.json` - Project dependencies and the Vite build, development, preview, and formatting scripts
-- `vite.config.ts` - Vite configuration with React, Tailwind CSS v4, and Figma Make plugins plus the `@` alias for `src`
-- `.mise.toml` - Toolchain versions for Node.js and pnpm
+- `src/main.tsx` — React entrypoint
+- `src/App.tsx` — prototype view/scenario orchestration
+- `src/index.css` — global CSS and Tailwind CSS v4 entrypoint
+- `src/components/` — product views and shared components
+- `src/data/` — prototype fixtures and scenarios
+- `src/types/` — prototype/canonical data types
+- `public/` — static prototype assets
+- `vite.config.ts` — Vite, React, Tailwind and retained Figma Make tooling
 
-## Dependencies
+## Product Views
 
-- Runtime: React 19 and React DOM 19
-- Styling: Tailwind CSS v4 with the `@tailwindcss/vite` plugin
-- Build tooling: Vite 8, TypeScript 5.7, and `@vitejs/plugin-react`
-- Formatting: oxfmt
+The prototype currently contains:
+
+- Procesamiento de documentos
+- Resultado del procesamiento
+- Auditoría de documentos
+- Revisión clínica
+- Historial del documento
+
+The shared App Shell is also part of the approved UX reference.
 
 ## Styling
 
-This project uses **Tailwind CSS v4** through the `@tailwindcss/vite` plugin configured in `vite.config.ts`. `src/index.css` imports Tailwind with `@import 'tailwindcss';`. Use Tailwind utility classes directly in JSX and put global CSS or Tailwind v4 theme customization in `src/index.css`. This scaffold does not need a Tailwind config file or PostCSS config.
+Use the existing MediFlow design system.
 
-`src/main.tsx` imports `src/index.css`, so global font wiring belongs in `src/index.css`. Keep CSS `@import` statements first, then add any `@font-face` rules and font-family defaults there.
+- Primary font: Plus Jakarta Sans
+- Do not replace it with Inter or another font.
+- Tailwind CSS v4 is used through `@tailwindcss/vite`.
+- Use the established colors, typography, spacing and component behavior.
+- Do not redesign approved views unless explicitly requested.
+- Do not add shadows, gradients or generic AI-style components without a
+  product reason.
+
+## Prototype Constraints
+
+Preserve approved scenarios, fixtures, routing behavior and canonical Backend
+contract shapes unless a task explicitly requires changing them.
+
+Do not:
+
+- invent Backend capabilities;
+- change enums or API contract semantics;
+- add authentication;
+- add unsupported global modules;
+- expose OCI internals;
+- replace approved interactions with arbitrary alternatives.
+
+This project contains synthetic prototype data only.
+
+## Working With Codex
+
+Before modifying code:
+
+1. Inspect the task-relevant implementation.
+2. Understand existing behavior and types.
+3. Keep changes narrowly scoped.
+4. Do not perform unrelated refactors.
+5. Run validation after changes.
+
+For TypeScript or implementation fixes, do not silence errors using:
+
+- `any`
+- `@ts-ignore`
+- `@ts-expect-error`
+- unsafe casts
+
+unless explicitly justified.
+
+After a code change, normally run:
+
+pnpm exec tsc --noEmit
+pnpm build
+
+Report the files changed and validation results.
