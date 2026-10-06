@@ -1,13 +1,10 @@
 import { scenarios } from './scenarios';
-import type { ProcessingResult } from '../types';
+import type { DocumentResult, DocumentStatus, ProcessingResult } from '../types';
 
 export type HistoryEventType = 'INITIAL_TRIAGE' | 'HUMAN_REVIEW';
 export type HistoryDecision = 'APPROVE' | 'REJECT' | null;
-export type HistoricalStatus = ProcessingResult['status'] | 'APPROVED' | 'REJECTED';
-
-export interface HistoryResultSnapshot extends Omit<ProcessingResult, 'status'> {
-  status: HistoricalStatus;
-}
+export type HistoricalStatus = DocumentStatus;
+export type HistoryResultSnapshot = DocumentResult;
 
 export interface DocumentHistoryEvent {
   sequence: number;
@@ -76,7 +73,7 @@ const approvedAfterReview: HistoryResultSnapshot = {
   },
 };
 
-const illegibleInitial: HistoryResultSnapshot = {
+export const illegibleInitial: ProcessingResult = {
   document_id: 'DOC-2026-097103',
   status: 'NEEDS_AUDIT',
   classification: null,

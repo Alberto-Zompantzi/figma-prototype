@@ -6,9 +6,11 @@ import { resultDocumentPreviews } from '../data/documentPreviewFixtures';
 import { auditReviewScenarios } from '../data/auditReviewScenarios';
 import { auditReasonLabel } from '../utils/labels';
 import { humanizeKey } from '../utils/humanizeKey';
-import type { AuditReason, Classification, RoutingDecision } from '../types';
+import type { AuditReason, Classification, DocumentResult, RoutingDecision } from '../types';
 import { DocumentViewer } from './ProcessingView';
-import { resolveAuditQueueItem } from '../state/auditQueueSession';
+import { refreshAuditQueue } from '../state/auditQueueSession';
+import { getInitialDocumentResult } from '../data/currentDocumentResults';
+import { recordReview } from '../state/reviewSession';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Reason chip
@@ -398,7 +400,7 @@ function ActionBanner({ action }: { action: 'approved' | 'rejected' }) {
           {isApproved ? 'Revisión aprobada' : 'Documento rechazado'}
         </p>
         <p className="font-jakarta font-normal not-italic text-[#4a597a] mt-0.5" style={{ fontSize: 13 }}>
-          Redirigiendo a la cola de revisión…
+          Redirigiendo al resultado…
         </p>
       </div>
     </div>
@@ -512,7 +514,7 @@ export function AuditReviewView({ scenarioKey }: { scenarioKey: string }) {
 
   // ── Destination ──
   const initialDestination = result.routing_decision.primary_destination;
-  const [destination, setDestination] = useState<string>(initialDestination);
+  const [destination, setDestination] = useState<RoutingDecision['primary_destination'] | ''>(initialDestination);
 
   // ── Final human-reviewed validation ──
   type ValidationGroupKey = 'missing_fields' | 'inconsistencies' | 'warnings';
@@ -624,11 +626,58 @@ export function AuditReviewView({ scenarioKey }: { scenarioKey: string }) {
     window.dispatchEvent(new PopStateEvent('popstate'));
   }, []);
 
+  const navigateToResult = () => {
+    history.pushState(null, '', `?view=result&scenario=${encodeURIComponent(scenarioKey)}&document=${encodeURIComponent(queueItem.document_id)}`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
+  const saveReview = (decision: 'APPROVE' | 'REJECT') => {
+    const initialResult = getInitialDocumentResult(scenarioKey, queueItem.document_id);
+    if (!initialResult) return false;
+    const classificationChanged = docType !== initialDocType || priority !== initialPriority || specialty !== initialSpecialty;
+    const extractionChanged = extractedFields.some(field => fieldValues[field.key] !== field.initialValue);
+    const aliases: Record<string, string[]> = {
+      medico_prescriptor: ['medico'], fecha_emision: ['fecha'], firma_medica: ['firma'],
+      fecha_documento: ['fecha'], medico_responsable: ['medico'], diagnostico: ['diagnostico_principal'],
+    };
+    const effectiveData = { ...initialResult.extracted_data };
+    for (const field of extractedFields) {
+      if (fieldValues[field.key] === field.initialValue) continue;
+      const sourceKey = [field.key, ...(aliases[field.key] ?? [])].find(key =>
+        initialResult.extracted_data?.[key] !== undefined && initialResult.extracted_data[key] !== null,
+      ) ?? field.key;
+      effectiveData[sourceKey] = fieldValues[field.key];
+    }
+    const validationChanged = JSON.stringify(validationValues) !== JSON.stringify(initialValidationValues);
+    const finalResult: DocumentResult = {
+      ...initialResult,
+      status: decision === 'APPROVE' ? 'APPROVED' : 'REJECTED',
+      // An incomplete rejected draft cannot manufacture a canonical classification.
+      classification: docType !== '' && priority !== '' && (decision === 'APPROVE' || classificationChanged)
+        ? { document_type: docType, specialty: specialty || null, priority_level: priority }
+        : initialResult.classification,
+      confidence: relevantContentChanged ? null : initialResult.confidence,
+      extracted_data: decision === 'APPROVE' || extractionChanged ? effectiveData : initialResult.extracted_data,
+      validation: decision === 'APPROVE' || validationChanged || validationConfirmed ? validationValues : initialResult.validation,
+      routing_decision: {
+        ...initialResult.routing_decision,
+        primary_destination: destination || initialResult.routing_decision.primary_destination,
+        requires_human_review: false,
+        justification: decision === 'APPROVE'
+          ? 'Destino confirmado durante la revisión humana.'
+          : 'Documento rechazado durante la revisión humana.',
+      },
+    };
+    recordReview(scenarioKey, initialResult, finalResult, decision);
+    refreshAuditQueue();
+    return true;
+  };
+
   const handleApprove = () => {
     if (!canApprove || committed) return;
+    if (!saveReview('APPROVE')) return;
     setFormState('approved');
-    resolveAuditQueueItem(queueItem.document_id, 'APPROVED');
-    timerRef.current = setTimeout(navigateToAudit, 2200);
+    timerRef.current = setTimeout(navigateToResult, 2200);
   };
 
   const handleRejectRequest = () => {
@@ -637,10 +686,10 @@ export function AuditReviewView({ scenarioKey }: { scenarioKey: string }) {
   };
 
   const handleRejectConfirm = () => {
+    if (committed || !saveReview('REJECT')) return;
     setShowRejectDialog(false);
     setFormState('rejected');
-    resolveAuditQueueItem(queueItem.document_id, 'REJECTED');
-    timerRef.current = setTimeout(navigateToAudit, 2200);
+    timerRef.current = setTimeout(navigateToResult, 2200);
   };
 
   const handleCancel = () => {

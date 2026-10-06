@@ -8,8 +8,9 @@ import { DocumentHistoryView, type HistoryViewState } from './components/Documen
 import { scenarios } from './data/scenarios';
 import { auditQueue } from './data/auditQueue';
 import { auditReviewScenarios } from './data/auditReviewScenarios';
-import { getDocumentHistory } from './data/documentHistory';
-import type { ProcessingResult as ProcessingResultData } from './types';
+import { getFinalDocumentResult, getInitialDocumentResult } from './data/currentDocumentResults';
+import type { DocumentResult } from './types';
+import { getReviewedResult } from './state/reviewSession';
 import { getProcessingSourceContext } from './state/processingSourceSession';
 
 const processingBreadcrumbs = [
@@ -46,15 +47,16 @@ function RedirectAuditReviewToResult({
   data,
 }: {
   scenarioKey: string;
-  data: ProcessingResultData;
+  data: DocumentResult;
 }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     params.set('view', 'result');
     params.set('scenario', scenarioKey);
+    params.set('document', data.document_id);
     history.replaceState(null, '', `?${params.toString()}`);
     window.dispatchEvent(new PopStateEvent('popstate'));
-  }, [scenarioKey]);
+  }, [scenarioKey, data.document_id]);
 
   return (
     <Shell breadcrumbs={resultBreadcrumbs} activeNav="procesamiento">
@@ -106,13 +108,12 @@ export default function App() {
   }, []);
 
   const { view, scenarioKey, documentId, historyState } = route;
-  const initialHistoryResult = getDocumentHistory(scenarioKey, documentId)?.events[0]?.result;
-  const historyResultCanRender =
-    initialHistoryResult?.status === 'PROCESSED' ||
-    initialHistoryResult?.status === 'NEEDS_AUDIT';
-  const data: ProcessingResultData =
-    scenarios[scenarioKey] ??
-    (historyResultCanRender ? initialHistoryResult : scenarios.processed);
+  const initialData = getInitialDocumentResult(scenarioKey, documentId) ?? scenarios[scenarioKey] ?? scenarios.processed;
+  const reviewedResult = getReviewedResult(documentId ?? initialData.document_id);
+  const data: DocumentResult =
+    reviewedResult ??
+    (documentId ? getFinalDocumentResult(documentId) : undefined) ??
+    initialData;
   const sourceContext = getProcessingSourceContext(scenarioKey);
 
   if (view === 'result') {
@@ -150,13 +151,13 @@ export default function App() {
 
   if (view === 'audit-review') {
     const reviewOnlyScenario = auditReviewScenarios[scenarioKey];
-    if (!reviewOnlyScenario && data.status !== 'NEEDS_AUDIT') {
+    if (reviewedResult || (!reviewOnlyScenario && initialData.status !== 'NEEDS_AUDIT')) {
       return <RedirectAuditReviewToResult scenarioKey={scenarioKey} data={data} />;
     }
     const requestedDocumentId = new URLSearchParams(window.location.search).get('document');
     if (requestedDocumentId) {
       const requestedItem = auditQueue.find(item => item.document_id === requestedDocumentId);
-      const reviewDocumentId = reviewOnlyScenario?.document_id ?? data.document_id;
+      const reviewDocumentId = reviewOnlyScenario?.document_id ?? initialData.document_id;
       const coherentReview =
         requestedItem?.scenario_key === scenarioKey &&
         requestedItem.document_id === reviewDocumentId;

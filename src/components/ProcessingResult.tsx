@@ -9,11 +9,11 @@ import { RoutingDecisionCard } from './RoutingDecisionCard';
 import { NotificationCard } from './NotificationCard';
 import { DocumentViewer } from './ProcessingView';
 import { resultDocumentPreviews } from '../data/documentPreviewFixtures';
-import type { ProcessingResult as ProcessingResultType } from '../types';
+import type { DocumentResult } from '../types';
 import type { ProcessingSourceContext } from '../state/processingSourceSession';
 
 interface Props {
-  data: ProcessingResultType;
+  data: DocumentResult;
   sourceContext?: ProcessingSourceContext | null;
   scenarioKey?: string;
 }

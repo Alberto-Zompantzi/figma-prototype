@@ -1,22 +1,26 @@
 import { useState } from 'react';
 import { Copy } from 'lucide-react';
 import { statusLabel } from '../utils/labels';
-import type { ProcessingResult } from '../types';
+import type { DocumentStatus } from '../types';
 
 interface Props {
   document_id: string;
-  status: ProcessingResult['status'];
+  status: DocumentStatus;
   metadataOnly?: boolean;
 }
 
-const chipStyles: Record<ProcessingResult['status'], string> = {
+const chipStyles: Record<DocumentStatus, string> = {
   PROCESSED: 'bg-[#EAF7F5] text-[#0B7573]',
   NEEDS_AUDIT: 'bg-[rgba(255,107,53,0.10)] text-[#D85A00]',
+  APPROVED: 'bg-[#EAF7F5] text-[#0B7573]',
+  REJECTED: 'bg-[#FAEEEE] text-[#A64040]',
 };
 
-const chipDot: Record<ProcessingResult['status'], string> = {
+const chipDot: Record<DocumentStatus, string> = {
   PROCESSED: 'bg-[#0B7573]',
   NEEDS_AUDIT: 'bg-[#FF6B35]',
+  APPROVED: 'bg-[#0B7573]',
+  REJECTED: 'bg-[#A64040]',
 };
 
 export function ViewHeader({ document_id, status, metadataOnly = false }: Props) {

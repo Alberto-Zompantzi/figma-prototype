@@ -9,11 +9,11 @@ import {
   Clock3,
 } from 'lucide-react';
 import {
-  getDocumentHistory,
   type DocumentHistoryEvent,
   type HistoricalStatus,
   type HistoryResultSnapshot,
 } from '../data/documentHistory';
+import { getSessionHistory } from '../state/reviewSession';
 import { humanizeKey } from '../utils/humanizeKey';
 import {
   auditReasonLabel,
@@ -239,11 +239,11 @@ function SnapshotSummary({ snapshot }: { snapshot: HistoryResultSnapshot }) {
           <DetailRow label="Destino">
             {destinationLabel(snapshot.routing_decision.primary_destination)}
           </DetailRow>
-          <DetailRow label="Revisión humana">
+          <DetailRow label="Revisión pendiente">
             {snapshot.routing_decision.requires_human_review ? 'Requerida' : 'No requerida'}
           </DetailRow>
           {snapshot.routing_decision.audit_reasons.length > 0 && (
-            <DetailRow label="Motivos registrados">
+            <DetailRow label="Motivos de revisión">
               <ul className="space-y-1 font-normal">
                 {snapshot.routing_decision.audit_reasons.map(reason => (
                   <li key={reason}>{auditReasonLabel(reason)}</li>
@@ -274,7 +274,8 @@ function SnapshotSummary({ snapshot }: { snapshot: HistoryResultSnapshot }) {
         </SnapshotSection>
       )}
 
-      <div className="border-t border-[#E5E5E5] pt-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-[#E5E5E5] pt-3">
+        <span className="text-[13px] font-normal leading-5 text-[#737373]">Almacenamiento</span>
         <div
           className={[
             'flex items-center gap-2 text-[13px] font-medium leading-5',
@@ -346,7 +347,7 @@ export function DocumentHistoryView({
   documentId?: string | null;
   state?: HistoryViewState;
 }) {
-  const fixture = getDocumentHistory(scenarioKey, documentId);
+  const fixture = getSessionHistory(scenarioKey, documentId);
   const events = useMemo(
     () => [...(fixture?.events ?? [])].sort((a, b) => a.sequence - b.sequence),
     [fixture],
@@ -360,7 +361,8 @@ export function DocumentHistoryView({
   const latestEvent = events.at(-1);
   const hasTimeline = events.length > 1;
   const returnScenario = fixture?.scenario_key ?? scenarioKey;
-  const resultHref = `?view=result&scenario=${encodeURIComponent(returnScenario)}`;
+  const returnDocumentId = fixture?.document_id ?? documentId;
+  const resultHref = `?view=result&scenario=${encodeURIComponent(returnScenario)}${returnDocumentId ? `&document=${encodeURIComponent(returnDocumentId)}` : ''}`;
 
   useEffect(() => {
     return () => {

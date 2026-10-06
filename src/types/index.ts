@@ -65,3 +65,9 @@ export interface ProcessingResult {
   notification: Notification;
   storage: Storage;
 }
+
+export type DocumentStatus = ProcessingResult['status'] | 'APPROVED' | 'REJECTED';
+
+export interface DocumentResult extends Omit<ProcessingResult, 'status'> {
+  status: DocumentStatus;
+}
