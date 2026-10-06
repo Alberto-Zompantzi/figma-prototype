@@ -1,0 +1,11 @@
+{
+  "title": "MediFlow",
+  "description": "Streamline clinical document processing with clear status updates, extracted data, and audit notifications for healthcare professionals.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #1a1a1a;
+  background: #fafafa;
+}
+
+h1 {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+h1 + p {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+}
+
+h2,
+h3 {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+label {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+.font-jakarta {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 13px !important;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d3d3d3;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d3d3d3 transparent;
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.viewer-toolbar {
+  container-name: viewer-toolbar;
+  container-type: inline-size;
+}
+
+.viewer-overflow-menu {
+  display: none;
+}
+
+@container viewer-toolbar (max-width: 559px) {
+  .viewer-secondary-action {
+    display: none;
+  }
+
+  .viewer-page-control {
+    width: 70px;
+  }
+
+  .viewer-page-input {
+    width: 41px;
+  }
+
+  .viewer-overflow-menu {
+    display: block;
+  }
+}
+
+@container viewer-toolbar (max-width: 560px) {
+  .viewer-overflow-menu {
+    display: block;
+  }
+}
+
+@container viewer-toolbar (max-width: 400px) {
+  .viewer-search-action,
+  .viewer-zoom-step-action {
+    display: none;
+  }
+
+  .viewer-zoom-control {
+    min-width: 68px;
+  }
+}

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 400" role="img" aria-label="Imagen de radiografía de tórax simulada">
+  <rect width="320" height="400" fill="#0d1117" rx="2"/>
+  <text x="10" y="18" fill="#4a5568" font-size="8" font-family="monospace">RX TORAX PA 2026-09-29</text>
+  <text x="10" y="28" fill="#4a5568" font-size="7" font-family="monospace">DOC-2026-097103</text>
+  <ellipse cx="110" cy="190" rx="72" ry="105" fill="none" stroke="#6b7280" stroke-width="0.5" opacity="0.6"/>
+  <ellipse cx="108" cy="185" rx="54" ry="86" fill="#1f2937" opacity="0.6"/>
+  <ellipse cx="210" cy="190" rx="68" ry="102" fill="none" stroke="#6b7280" stroke-width="0.5" opacity="0.6"/>
+  <ellipse cx="210" cy="185" rx="50" ry="83" fill="#1f2937" opacity="0.6"/>
+  <line x1="160" y1="60" x2="160" y2="340" stroke="#374151" stroke-width="16" opacity="0.7"/>
+  <ellipse cx="148" cy="240" rx="48" ry="40" fill="#374151" opacity="0.55"/>
+  <path d="M55 305Q110 330 160 315Q210 300 265 318" stroke="#9ca3af" stroke-width="1.2" fill="none" opacity="0.7"/>
+  <g fill="none" stroke="#9ca3af" stroke-width="1" opacity="0.3">
+    <path d="M60 130Q110 118 150 122M260 130Q210 118 170 122"/>
+    <path d="M60 155Q110 143 150 147M260 155Q210 143 170 147"/>
+    <path d="M60 178Q110 166 150 170M260 178Q210 166 170 170"/>
+    <path d="M60 200Q110 188 150 192M260 200Q210 188 170 192"/>
+    <path d="M60 222Q110 210 150 214M260 222Q210 210 170 214"/>
+    <path d="M60 244Q110 232 150 236M260 244Q210 232 170 236"/>
+    <path d="M60 264Q110 252 150 256M260 264Q210 252 170 256"/>
+  </g>
+  <path d="M65 100Q110 88 155 95M255 100Q210 88 165 95" stroke="#9ca3af" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <text x="10" y="390" fill="#374151" font-size="7" font-family="monospace">PROTOTIPO — NO DIAGNÓSTICO</text>
+</svg>
