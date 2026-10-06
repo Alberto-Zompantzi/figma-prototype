@@ -6,7 +6,7 @@ import { resultDocumentPreviews } from '../data/documentPreviewFixtures';
 import { auditReviewScenarios } from '../data/auditReviewScenarios';
 import { auditReasonLabel } from '../utils/labels';
 import { humanizeKey } from '../utils/humanizeKey';
-import type { AuditReason, RoutingDecision } from '../types';
+import type { AuditReason, Classification, RoutingDecision } from '../types';
 import { DocumentViewer } from './ProcessingView';
 import { resolveAuditQueueItem } from '../state/auditQueueSession';
 
@@ -274,13 +274,13 @@ function TextInput({
   );
 }
 
-function SelectInput({
+function SelectInput<Value extends string>({
   id, value, onChange, options, disabled, hasError, refined = false,
 }: {
   id?: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label: string }[];
+  value: Value | '';
+  onChange: (v: Value | '') => void;
+  options: { value: Value; label: string }[];
   disabled?: boolean;
   hasError?: boolean;
   refined?: boolean;
@@ -289,7 +289,7 @@ function SelectInput({
     <select
       id={id}
       value={value}
-      onChange={e => onChange(e.target.value)}
+      onChange={e => onChange(options.find(option => option.value === e.target.value)?.value ?? '')}
       disabled={disabled}
       className={[
         'w-full appearance-none border bg-white px-3 font-jakarta font-normal transition-colors focus:outline-none',
@@ -449,7 +449,7 @@ function getExtractedFields(
 // Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const DOC_TYPE_OPTIONS = [
+const DOC_TYPE_OPTIONS: { value: Classification['document_type']; label: string }[] = [
   { value: 'PRESCRIPTION',       label: 'Receta médica' },
   { value: 'IMAGING_REPORT',     label: 'Informe de imagen' },
   { value: 'STUDY_REPORT',       label: 'Informe de estudio' },
@@ -458,7 +458,7 @@ const DOC_TYPE_OPTIONS = [
   { value: 'MEDICAL_CERTIFICATE',label: 'Certificado médico' },
 ];
 
-const PRIORITY_OPTIONS = [
+const PRIORITY_OPTIONS: { value: Classification['priority_level']; label: string }[] = [
   { value: 'ROUTINE', label: 'Rutinaria' },
   { value: 'URGENT',  label: 'Urgente' },
 ];
@@ -475,8 +475,10 @@ const DESTINATION_OPTIONS: { value: RoutingDecision['primary_destination']; labe
 // Main view
 // ─────────────────────────────────────────────────────────────────────────────
 
+const reviewOnlyScenarioLookup: Partial<typeof auditReviewScenarios> = auditReviewScenarios;
+
 export function AuditReviewView({ scenarioKey }: { scenarioKey: string }) {
-  const reviewOnlyScenario = auditReviewScenarios[scenarioKey];
+  const reviewOnlyScenario = reviewOnlyScenarioLookup[scenarioKey];
   const result = reviewOnlyScenario ?? scenarios[scenarioKey] ?? scenarios.needs_audit_partial;
   const requestedDocumentId = new URLSearchParams(window.location.search).get('document');
   const queueItem =
@@ -493,9 +495,9 @@ export function AuditReviewView({ scenarioKey }: { scenarioKey: string }) {
   const initialSpecialty =
     reviewOnlyClassification?.specialty ?? result.classification?.specialty ?? '';
 
-  const [docType,   setDocType]   = useState(initialDocType);
-  const [priority,  setPriority]  = useState(initialPriority);
-  const [specialty, setSpecialty] = useState(initialSpecialty);
+  const [docType,   setDocType]   = useState<Classification['document_type'] | ''>(initialDocType);
+  const [priority,  setPriority]  = useState<Classification['priority_level'] | ''>(initialPriority);
+  const [specialty, setSpecialty] = useState<string>(initialSpecialty);
 
   // ── Extracted fields ──
   const extractedFields = useMemo(

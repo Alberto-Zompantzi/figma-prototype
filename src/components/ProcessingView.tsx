@@ -14,6 +14,13 @@ const imgIconText = `${assetPathPrefix}/18973.svg`;
 
 type InputMode = 'file' | 'text';
 
+interface ViewerActionItem {
+  label: string;
+  icon: React.ComponentType;
+  action?: () => void;
+  disabled?: boolean;
+}
+
 const ACCEPTED_MIME = new Set(['application/pdf', 'image/jpeg', 'image/png']);
 const ACCEPTED_EXT = new Set(['.pdf', '.jpg', '.jpeg', '.png']);
 const SUCCESS_SCENARIOS = new Set([
@@ -640,7 +647,7 @@ export function DocumentViewer({
     { key: 'attachments', label: 'Adjuntos', icon: AttachmentViewerIcon },
   ];
 
-  const moreMenuItems = [
+  const moreMenuItems: ViewerActionItem[] = [
     ...(compactToolbar ? [
       {
         label: 'Buscar en el documento',
