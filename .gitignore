@@ -1,4 +1,5 @@
 node_modules/
+.pnpm-store/
 dist/
 build/
 .cache/
@@ -9,6 +10,28 @@ vite.config.*.timestamp-*
 *-debug.log*
 logs/
 *.log
+coverage/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
 .claude-replay.*
 .tmp-*
 /.figma/design-context/
